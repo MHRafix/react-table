@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { useTable } from 'react-table';
+import { useColumnOrder, useTable } from 'react-table';
 import { COLUMNS } from './columns';
 import MOCK_DATA from './MOCK_DATA.json';
 import './table.css';
  
-const BasicTable = () => {
+const ColumnOrder = () => {
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
     
@@ -12,7 +12,9 @@ const BasicTable = () => {
     const tableInstance = useTable({
         columns,
         data
-    });
+    }, 
+    useColumnOrder);
+    
     
     const {
         getTableProps,
@@ -21,9 +23,22 @@ const BasicTable = () => {
         footerGroups,
         rows,
         prepareRow,
+        setColumnOrder
     } = tableInstance;
 
+    const changeOrder = () => {
+        setColumnOrder([
+            'id',
+            'first_name',
+            'last_name',
+            'email',
+            'gender'
+        ])
+    }
+
     return (
+        <>
+        <button onClick={changeOrder}>Change Column Order</button>
         <table {...getTableProps()} >
             <thead> 
               {headerGroups.map((headerGroup) => (
@@ -66,7 +81,8 @@ const BasicTable = () => {
                 }
             </tfoot>
         </table>
+        </>
     );
 };
 
-export default BasicTable;
+export default ColumnOrder;

@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { useTable } from 'react-table';
+import { useRowSelect, useTable } from 'react-table';
+import { CheckBox } from './CheckBox';
 import { COLUMNS } from './columns';
 import MOCK_DATA from './MOCK_DATA.json';
 import './table.css';
  
-const BasicTable = () => {
+const RowSelection = () => {
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
     
@@ -12,7 +13,24 @@ const BasicTable = () => {
     const tableInstance = useTable({
         columns,
         data
+    }, 
+    useRowSelect, (hooks) => {
+        hooks.visibleColumns.push((column) => {
+            return [
+                {
+                    id: 'selection',
+                    Header: ({ getToggleAllRowsSelectedProps}) => (
+                        <CheckBox  {...getToggleAllRowsSelectedProps} />
+                    ),
+                    Cell: ({row}) => (
+                        <CheckBox {...row.getToggleAllRowsSelectedProps} />
+                    )
+                },
+                ...columns
+            ]
+        })
     });
+    
     
     const {
         getTableProps,
@@ -20,10 +38,14 @@ const BasicTable = () => {
         headerGroups,
         footerGroups,
         rows,
+        selectedFlatRows,
         prepareRow,
     } = tableInstance;
 
+    const firstPageRows = rows.slice(0, 10);
+
     return (
+        <>
         <table {...getTableProps()} >
             <thead> 
               {headerGroups.map((headerGroup) => (
@@ -37,7 +59,7 @@ const BasicTable = () => {
             </thead>
             
             <tbody {...getTableBodyProps()}>
-                {rows.map(row => {
+                {firstPageRows.map(row => {
                     prepareRow(row)
                     return(
                         <tr {...row.getRowProps()}>
@@ -66,7 +88,19 @@ const BasicTable = () => {
                 }
             </tfoot>
         </table>
+        <pre>
+            <code>
+                {JSON.stringify(
+                    {
+                        selectedFlatRows: selectedFlatRows.map((row) => row.original),
+                    },
+                    null,
+                    2
+                )}
+            </code>
+        </pre>
+        </>
     );
 };
 
-export default BasicTable;
+export default RowSelection;
